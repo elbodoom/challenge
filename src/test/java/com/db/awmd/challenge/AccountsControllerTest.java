@@ -111,7 +111,7 @@ public class AccountsControllerTest {
             .andExpect(
                     status().isCreated())
             .andExpect(
-                    header().string("location", "/receipt/generated-id"));
+                    header().string("location", "/accountId/receipt/id"));
   }
 
   @Test

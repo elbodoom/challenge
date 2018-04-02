@@ -56,7 +56,7 @@ public class AccountsController {
     TransferReceipt receipt = accountsService.transfer(accountFrom, accountTo, ammount);
 
     //Creating a fake URI to represent a new receipt
-    URI location = URI.create("/receipt/generated-id");
+    URI location = URI.create("/accountId/receipt/id");
 
     return ResponseEntity
             .created(location)
