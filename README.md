@@ -18,9 +18,10 @@ The Asset Management Digital Challenge
 * After the replacement of the storage, it would be necessary to change the AccountService#executeTransfer to be executed in an Atomic transaction. If something wrong happens either in withdraw or in deposit, the balance state should be not changed.  
 
 #### API
-* I would review all implemented APIs to raise properly exceptions, instead to return a success code for all scenrarios. For an example in **AccountsController#getAccount**, every time a success code is returned even if an Account does not exist, in this case I would raise a Exception with Http Status Code = 404 with a propertly message.
-* I would document the APIs using Swagger, to be more specific, using Springfox api 
-* I would create REST representations using HATEOAS principle, as it is done in **AccountsController#transfer**, for an example creating a reference to **TransferReceipt** using **location** header parameter in the response 
+* Review all implemented APIs to raise properly exceptions, instead to return a success code for all scenrarios. For an example in **AccountsController#getAccount**, every time a success code is returned even if an Account does not exist, in this case I would raise a Exception with Http Status Code = 404 with a propertly message.
+* Document the APIs using Swagger, to be more specific, using Springfox api 
+* Create REST representations using HATEOAS principle, as it is done in **AccountsController#transfer**, for an example creating a reference to **TransferReceipt** using **location** header parameter in the response
+* Create an Account Transfer Object (DTO) to be used in the **AccountsController**, and move all bean validations from the Domain to this DTO      
 
 #### Tests
 * I would improve the tests creating different spring profiles to execute unit and integration tests
