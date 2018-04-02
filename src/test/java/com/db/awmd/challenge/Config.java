@@ -5,8 +5,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
+/**
+ * Simple Spring Configuration to Mock NotificationService
+ */
 @Configuration
 public class Config {
+
   @Primary
   @Bean
   public NotificationService notificationService() {
