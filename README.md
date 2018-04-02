@@ -8,7 +8,8 @@ The Asset Management Digital Challenge
 * The first thing I would change in the code is to split this project and small ones to enable microservices architecture, for an example, one project to _Notification Service_, another one to _Repository Service_, and so on
 * After such re-structuring I would use SpringCloud to build the microservices infra-structure, using Discovery Service (_Eureka_) to facilitate the service location, Feign Client to facilitate the integration among the microservices and Spring Cloud Config Server to centralize the configuration/properties
 * Implement a reverse-proxy (we could use Zuul from Spring Cloud Netflix) to centralize some required features like Authorization and Authentication
-* Unfortunately I have no much experience with Event Sourcing model, but, I think such solution should be implemented following, at least, the Event Sourcing model. All transfer/transaction would be handled as an event, with that it would be possible to recreate the Account balance state in any point of time   
+* Unfortunately I have no much experience with Event Sourcing model, but, I think such solution should be implemented following, at least, the Event Sourcing model. All transfer/transaction would be handled as an event, with that it would be possible to recreate the Account balance state in any point of time
+* Extract all hardcoded messages from the code and externalize it in a message bundle to support internationalization
 
 ##### Repository Service
 * Replace the in-memory account storage to a Database solution
