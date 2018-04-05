@@ -2,6 +2,7 @@ package com.db.awmd.challenge;
 
 import com.db.awmd.challenge.domain.Account;
 import com.db.awmd.challenge.service.AccountsService;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +19,9 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 @RunWith(SpringRunner.class)
@@ -106,8 +109,15 @@ public class AccountsControllerTest {
   public void transfer() throws Exception {
     this.accountsService.createAccount(new Account("1", BigDecimal.ONE));
     this.accountsService.createAccount(new Account("2", BigDecimal.ONE));
+    String body = new JSONObject()
+            .put("accountFrom", "1")
+            .put("accountTo", "2")
+            .put("ammount", 1)
+            .toString();
     this.mockMvc.perform(
-            post("/v1/accounts/1/transfer?to=2&ammount=1"))
+            post("/v1/accounts/transfer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
             .andExpect(
                     status().isCreated())
             .andExpect(
@@ -116,10 +126,15 @@ public class AccountsControllerTest {
 
   @Test
   public void transfer_accountNotFound() throws Exception {
+    String body = new JSONObject()
+            .put("accountFrom", "1")
+            .put("accountTo", "2")
+            .put("ammount", 1)
+            .toString();
     this.mockMvc.perform(
-            post("/v1/accounts/1/transfer?to=2&ammount=1")
+            post("/v1/accounts/transfer")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content("{\"accountId\":\"Id-123\",\"balance\":1000}"))
+                    .content(body))
             .andExpect(
                     status().isNotFound());
   }
@@ -128,24 +143,47 @@ public class AccountsControllerTest {
   public void transfer_insufficientFunds() throws Exception {
     this.accountsService.createAccount(new Account("1", BigDecimal.ONE));
     this.accountsService.createAccount(new Account("2", BigDecimal.ONE));
+    String body = new JSONObject()
+            .put("accountFrom", "1")
+            .put("accountTo", "2")
+            .put("ammount", 100)
+            .toString();
     this.mockMvc.perform(
-            post("/v1/accounts/1/transfer?to=2&ammount=100"))
+            post("/v1/accounts/transfer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
             .andExpect(
                     status().isBadRequest())
             .andExpect(
                     status().reason("Insufficient funds"));
   }
 
-  @Test(expected = Exception.class)
+  @Test
   public void transfer_invalidAmmount() throws Exception {
+    String body = new JSONObject()
+            .put("accountFrom", "1")
+            .put("accountTo", "2")
+            .put("ammount", 0)
+            .toString();
     this.accountsService.createAccount(new Account("1", BigDecimal.ONE));
     this.accountsService.createAccount(new Account("2", BigDecimal.ONE));
     this.mockMvc.perform(
-            post("/v1/accounts/1/transfer?to=2&ammount=0"));
+            post("/v1/accounts/transfer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+            .andExpect(status().isBadRequest());
+  }
 
-    //I would like to verify such test using the expect inspection as above, but I don't know why SpringMockMvc is not handling
-    // the IllegalArgumentException, raised in the Account#withdraw
-    //
-    //  .andExpect(status().isInternalServerError());
+  @Test
+  public void transfer_nullAccount() throws Exception {
+    String body = new JSONObject()
+            .put("accountTo", "2")
+            .put("ammount", 1)
+            .toString();
+    this.mockMvc.perform(
+            post("/v1/accounts/transfer")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+            .andExpect(status().isBadRequest());
   }
 }

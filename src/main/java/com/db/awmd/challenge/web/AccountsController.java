@@ -6,15 +6,20 @@ import com.db.awmd.challenge.exception.AccountNotFoundException;
 import com.db.awmd.challenge.exception.DuplicateAccountIdException;
 import com.db.awmd.challenge.exception.InsufficientFundsException;
 import com.db.awmd.challenge.service.AccountsService;
+import com.db.awmd.challenge.web.dto.AccountTransferDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import java.math.BigDecimal;
 import java.net.URI;
 
 @RestController
@@ -48,18 +53,18 @@ public class AccountsController {
     return this.accountsService.getAccount(accountId);
   }
 
-  @PostMapping(path = "/{accountId}/transfer")
-  public ResponseEntity<TransferReceipt> transfer(
-          @PathVariable(name = "accountId") String accountFrom,
-          @RequestParam(name = "to") String accountTo,
-          @RequestParam(name = "ammount") BigDecimal ammount) throws AccountNotFoundException, InsufficientFundsException {
-    TransferReceipt receipt = accountsService.transfer(accountFrom, accountTo, ammount);
+  @PostMapping(path = "/transfer", consumes = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<TransferReceipt> transfer(@RequestBody @Valid AccountTransferDTO transferDto) throws AccountNotFoundException, InsufficientFundsException {
+    TransferReceipt receipt = accountsService.transfer(
+      transferDto.getAccountFrom(),
+      transferDto.getAccountTo(),
+      transferDto.getAmmount());
 
     //Creating a fake URI to represent a new receipt
     URI location = URI.create("/accountId/receipt/id");
 
     return ResponseEntity
-            .created(location)
-            .body(receipt);
+      .created(location)
+      .body(receipt);
   }
 }
